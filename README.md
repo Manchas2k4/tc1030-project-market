@@ -1,5 +1,5 @@
 ![Tec de Monterrey](images/logotecmty.png)
-# Situación problema: Simulación de un sistema de un sistema de gestión portuaria
+# Situación problema: Simulación de un mercado de valores
 
 ## <span style="color: rgb(26, 99, 169);">¿Qué tengo que hacer?</span>
 En este repositorio encontrarás una serie de carpetas y archivos que necesitarás para el desarrollo del proyecto.
