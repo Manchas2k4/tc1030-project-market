@@ -19,84 +19,85 @@ En estos archivos deberás desarrollar la implementación de cada una de las cla
 ```
 
 ## <span style="color: rgb(26, 99, 169);">Introducción</span>
-En este proyecto, debes implementar una simulación de un sistema de gestión portuaria. El objetivo principal es analizar las solicitudes proporcionadas en el archivo de entrada y llevar a cabo las acciones necesarias.
+La economía es un hecho indispensable de nuestras vidas. En la vida real, para comprar y vender cosas, usamos algunos activos impresos o virtuales, llamados dinero. Sin embargo, los billetes en tu bolsillo no tiene ninguna diferencia con un pedazo de papel. Obtiene su valor sólo en un mercado.
 
-Hay *puertos*, y los *barcos* que navegan entre ellos. Los buques transportan los siguientes tipos de contenedores: *ligeros*, *pesados*, *refigerados* y *líquidos*, cada uno de ellos debe manejarse de manera diferente. Los contenedores en un puerto se pueden cargar en los barcos y, a la inversa, se pueden descargar de un barco a un puerto. Los barcos necesitan una cierta cantidad de combustible para navegar de un puerto a otro.
+En este proyecto, implementarás un modelo de mercado básico. Este modelo consta de *comerciantes*, *billeteras*, *transacciones*, *divisas* y un *mercado*. Para simplificar, tenemos dos monedas en el mercado: *dólar* y *PQoin* (Priority Queue Coin). Los comerciantes pueden dar órdenes de compra o venta al mercado si pueden pagarlas.
+
+En nuestro modelo de mercado, hay dos filas ordenadas por prioridad para almacenar pedidos. En una fila de prioridad, los elementos que tienen la prioridad más alta estarán al frente. Las reglas de prioridad se escriben en las siguientes secciones. Con estas reglas, su implementación de mercado debería realizar transacciones si los primeros elementos de estas files de prioridad se superponen.
 
 Ten en cuenta que no hay ninguna interacción con el usuario durante la ejecución. Tu solución tomará la entrada de un archivo de texto, realizará las operaciones e imprimirá la información necesario en un archivo de texto de salida. El nombre de ambos archivos, los tomará como argumento del programa. En otras palabras, **no habrá ninguna entrada dada con el teclado mientras se ejecuta el programa**.
 
-Ten en cuenta que habrá varias clases. Por lo tanto, deberás trabajarás con varios archivos cabecera (o header). Los nombres de las variables de instancia y métodos se proporcionarán en este documento, así como en el encabezado de la clase que se encuentra en cada archivo cabecera. Aunque esto no significa que no puedas agregar métodos o campos adicionales.
+Ten en cuenta que habrá varias clases. Por lo tanto, trabajarás con varios archivos cabecera (o header). Los nombres de las variables de instancia y métodos se proporcionarán en este documento, así como en el encabezado de la clase que se encuentra en cada archivo cabecera. Aunque esto no significa que no puedas agregar métodos o campos adicionales.
 
 ### <span style="color: rgb(26, 99, 169);">**Clases**</span>
-Existen 5 clases interactuando entre sí en este proyecto:
-* `Container`.
-* `LightContainer` (derivado de Container)
-* `HeavyContainer` (derivado de Container)
-* `RefrigeratedContainer` (derivado de HeavyContainer)
-* `LiquidContainer` (derivado de HeavyContainer)
-* `SimpleShip`.
-* `Port`.
-* `Ship`.
+Existen 6 clases interactuando entre sí en este proyecto:
+* `Order`.
+* `SellingOrder` (derivado de `Order`)
+* `BuyingOrder` (derivado de `Order`)
+* `Wallet`
+* `Trader`
+* `Market`.
 
-Ten en cuenta que será necesario hacer los cálculos necesarios mediante el uso de los métodos correspondiente en las clases `Port`, `Container` (o derivados) o `Ship`, no en el programa principal.
+Ten en cuenta que será necesario hacer los cálculos necesarios mediante el uso de los métodos correspondiente en las clases `Order` (o derivados), `Wallet`, `Trader` o `Market`, no en el programa principal.
 
-#### <span style="color: rgb(26, 99, 169);">**Container**</span>
-La clase `Container` cuenta con las siguientes variables de estado:
-* `id`: Identificador del contenedor.
-* `weight`: Peso del contenedor.
-* `type`: Tipo de contenedor (ligero, pesado, rerigerado, líquido).
-
-La clase cuenta con los siguientes métodos:
-* Constructor con tres parámetro (identificador, peso y tipo del contenedor).
-* Constructor de copia.
-* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
-* `bool operator==(const Container *right)`: Regresa `true`, si el id, peso y tipo de contenedor son los mismo.
-* `bool operator==(const Container &right)`: Regresa `true`, si el id, peso y tipo de contenedor son los mismo.
-* `bool operator<(const Container *right)`: Si ambos contenedores son de mismo tipo, regresa `true`si el identificador de nuestro contenedor es menor. Si los tipos son diferentes, regresa `true`, si el tipo de nuestro contenedor es menor.
-* `bool operator<(const Container &right)`: Si ambos contenedores son de mismo tipo, regresa `true`si el identificador de nuestro contenedor es menor. Si los tipos son diferentes, regresa `true`, si el tipo de nuestro contenedor es menor.
-* `virtual double getConsumption() const = 0`: Función abstracta. Se deberá implementar en las clases derivadas.
-
-#### <span style="color: rgb(26, 99, 169);">**Light**</span>
-La clase `Light`, derivada de `Container`, no tiene ninguna variable de instancia propia. Sin embargo, cuenta con los siguientes métodos:
-* Constructor con dos parámetro (identificador, peso). Invoca al consntructor de la clase superior, indicando el tipo de contenedor correcto.
-* Constructor de copia. Invoca al consntructor de la clase superior.
-* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
-* `double getConsumption() const`: El consumo de combustible por llevar este tipo de contenedor es 2.5 veces el peso del mismo.
-
-#### <span style="color: rgb(26, 99, 169);">**Heavy**</span>
-La clase `Heavy`, derivada de `Container`, no tiene ninguna variable de instancia propia. Sin embargo, cuenta con los siguientes métodos:
-* Constructor con dos parámetro (identificador, peso). Invoca al consntructor de la clase superior, indicando el tipo de contenedor correcto.
-* Constructor de copia. Invoca al consntructor de la clase superior.
-* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
-* `double getConsumption() const`: El consumo de combustible por llevar este tipo de contenedor es 3 veces el peso del mismo.
-
-#### <span style="color: rgb(26, 99, 169);">**Liquid**</span>
-La clase `Liquid`, derivada de `Heavy`, no tiene ninguna variable de instancia propia. Sin embargo, cuenta con los siguientes métodos:
-* Constructor con dos parámetro (identificador, peso). Invoca al consntructor de la clase superior, indicando el tipo de contenedor correcto.
-* Constructor de copia. Invoca al consntructor de la clase superior.
-* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
-* `double getConsumption() const`: El consumo de combustible por llevar este tipo de contenedor es 4 veces el peso del mismo.
-
-#### <span style="color: rgb(26, 99, 169);">**Refrigerated**</span>
-La clase `Refrigerated`, derivada de `Heavy`, no tiene ninguna variable de instancia propia. Sin embargo, cuenta con los siguientes métodos:
-* Constructor con dos parámetro (identificador, peso). Invoca al consntructor de la clase superior, indicando el tipo de contenedor correcto.
-* Constructor de copia. Invoca al consntructor de la clase superior.
-* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
-* `double getConsumption() const`: El consumo de combustible por llevar este tipo de contenedor es 5 veces el peso del mismo.
-
-#### <span style="color: rgb(26, 99, 169);">**SimpleShip**</span>
-La clase `SimpleShip` cuenta con las siguientes variables de estado:
-* `id` : Identificador de la nave.
+#### <span style="color: rgb(26, 99, 169);">**Order**</span>
+La clase `Order` cuenta con las siguientes variables de estado:
+* `traderId`: Identificador del comerciante que generó la orden.
+* `amount`: Cantidad a comprar.
+* `price`: Precio al que se quiere comprar.
+* `type`: Tipo de order (venta, compra).
 
 La clase cuenta con los siguientes métodos:
-* Constructor con un parámetro (identificador de la nave).
+* Constructor con cuatro parámetro (identificador, cantidad, precio, tipo de orden).
 * Constructor de copia.
 * Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
-* `bool operator==(const Container *right)`: Regresa `true`, si el identificador de ambas naves es el mismo.
-* `bool operator==(const Container &right)`: Regresa `true`, si el identificador de ambas naves es el mismo.
-* `bool operator<(const Container *right)`: Regresa `true`, si el identificador de nuestra nave es menor.
-* `bool operator<(const Container &right)`: Regresa `true`, si el identificador de nuestra nave es menor.
-* `virtual std::string toString() const = 0`: Función abstracta. Se deberá implementar en las clases derivadas.
+* `double getDollar() const`: El costo, en dólares, de la orden. Se calcula multiplicando el precio por la cantidad a comprar.
+* `bool operator==(const Order *right)`: Regresa `true`, si el tipo, identificador, cantidad y precio son los mismos.
+* `bool operator==(const Order &right)`: Regresa `true`, si el tipo, identificador, cantidad y precio son los mismos.
+* `virtual bool operator<(const Container *right) = 0`: Función abstracta. Se implementará en clases derivadas.
+* `virtual bool operator<(const Container &right) = 0`: Función abstracta. Se implementará en clases derivadas.
+
+#### <span style="color: rgb(26, 99, 169);">**SellingOrder**</span>
+La clase `SellingOrder`, derivada de `Order`, no tiene ninguna variable de instancia propia. Sin embargo, cuenta con los siguientes métodos:
+* Constructor con tres parámetro (identificador, cantidad y precio). Invoca al constructor de la clase superior, indicando el tipo de contenedor correcto.
+* Constructor de copia. Invoca al constructor de la clase superior.
+* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
+* `bool operator<(const Container *right)`: Si el tipo de nuestra orden es diferente a la de `right`, regresa si nuestro tipo es **menor** o no. Si el precio de nuestra orden es diferente al de `right`, regresa si nuestro precio es **menor** o no. Si la cantidad de nuestra orden es diferente a la de `right`, regresa si nuestra cantidad es **mayor** o no. Si no fue ninguno de los casos previos, regres si nuestro identificador es **menor** o no.
+* `bool operator<(const Container &right)`: Emplea la misma lógica que el método anterior.
+
+#### <span style="color: rgb(26, 99, 169);">**BuyingOrder**</span>
+La clase `BuyingOrder`, derivada de `Order`, no tiene ninguna variable de instancia propia. Sin embargo, cuenta con los siguientes métodos:
+* Constructor con tres parámetro (identificador, cantidad y precio). Invoca al constructor de la clase superior, indicando el tipo de contenedor correcto.
+* Constructor de copia. Invoca al constructor de la clase superior.
+* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
+* `bool operator<(const Container *right)`: Si el tipo de nuestra orden es diferente a la de `right`, regresa si nuestro tipo es **menor** o no. Si el precio de nuestra orden es diferente al de `right`, regresa si nuestro precio es **mayor** o no. Si la cantidad de nuestra orden es diferente a la de `right`, regresa si nuestra cantidad es **mayor** o no. Si no fue ninguno de los casos previos, regres si nuestro identificador es **menor** o no.
+* `bool operator<(const Container &right)`: Emplea la misma lógica que el método anterior.
+
+#### <span style="color: rgb(26, 99, 169);">**Wallet**</span>
+La clase `Wallet` cuenta con las siguientes variables de estado:
+* `dollars`: Dólares disponibles.
+* `coins`: PQCoins disponibles.
+* `blockedDollars`: Dólares bloqueados por transacciones que no se han procesado.
+* `blockedCoins`: PQCoins bloqueadas por transacciones que no se han procesado.
+
+La clase cuenta con los siguientes métodos:
+* Constructor con dos parámetros (dólares y monedas).
+* Constructor de copia.
+* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
+* `void depositDollars(double amount)`: Si la cantidad recibida es positiva, la agrega a la cantidad de dólares disponibles.
+* `void depositCoins(double amount)`: Si la cantidad recibida es positiva, la agrega a la cantidad de PQCoins disponibles.
+* `void withdrawDollars(double amount)`: Si la cantidad recibida es positiva, resta esa cantidad de los dólares disponibles.
+* `void blockDollars(double amount)`: Si la cantidad recibida es positiva, elimina esa cantidad de los dólares disponibles y la agrega a los bloqueados.
+* `void blockCoins(double amount)`: Si la cantidad recibida es positiva, elimina esa cantidad de las PQCoins disponibles y la agrega a las bloqueadas.
+* `void returnDollars(double amount)`: Si la cantidad recibida es positiva, elimina esa cantidad de los dólares bloquedos y la agrega a los disponibles.
+* `void payFromBlockedDollars(double amount)`: Si la cantidad recibida es positiva, elimina esa cantidad de los dólares bloquedos.
+* `void payFromBlockedCoins(double amount)`: Si la cantidad recibida es positiva, elimina esa cantidad de las PQCoins bloquedas.
+* `bool checkWithDraw(double amount)`: Si la cantidad recibida es positiva, regresa verdadero si la cantidad es menor a la cantidad de dólares disponibles.
+* `bool checkSelling(double amount)`: Si la cantidad recibida es positiva, regresa verdadero si la cantidad es menor a la cantidad de PQCoins disponibles.
+* `bool checkBlockedDollars(double amount)`: Si la cantidad recibida es positiva, regresa verdadero si la cantidad es menor a la cantidad de dólares bloqueados.
+* `bool checkBlockedCoins(double amount)`: Si la cantidad recibida es positiva, regresa verdadero si la cantidad es menor a la cantidad de PQCoins bloquedas.
+* `std::string toString() const`: Regresa un string con el siguiente formato: `<amount1>$ <amount2>PQ`, donde `amount1` es la cantida total de dólares (disponibles y bloquedos) y `amount2` es la cantidad total de PQCoins (disponibles y bloquedas).
+
 
 #### <span style="color: rgb(26, 99, 169);">**Port**</span>
 La clase `Port` cuenta con las siguientes variables de estado:
