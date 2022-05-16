@@ -98,123 +98,170 @@ La clase cuenta con los siguientes métodos:
 * `bool checkBlockedCoins(double amount)`: Si la cantidad recibida es positiva, regresa verdadero si la cantidad es menor a la cantidad de PQCoins bloquedas.
 * `std::string toString() const`: Regresa un string con el siguiente formato: `<amount1>$ <amount2>PQ`, donde `amount1` es la cantida total de dólares (disponibles y bloquedos) y `amount2` es la cantidad total de PQCoins (disponibles y bloquedas).
 
+#### <span style="color: rgb(26, 99, 169);">**Trader**</span>
+La clase `Trader` cuenta con las siguientes variables de estado:
+* `id`: Identificador del comerciantes.
+* `waller`: Un apuntador a la cartera de ese comerciante.
 
-#### <span style="color: rgb(26, 99, 169);">**Port**</span>
-La clase `Port` cuenta con las siguientes variables de estado:
-* `id`: Identificador del puerto.
-* `x`, `y`: Posición del puerto en un plano cartesiano.
-* `containers`: Lista de los contenedores que están en el puerto.
-* `history`: Lista de los barcos que han estado en el puerto.
-* `current`: Lista de los barcos que actualmente están en el puerto.
+**IMPORTANTE**: Existe un comerciante `0` que representa el mercado.
 
 La clase cuenta con los siguientes métodos:
-* Constructor con tres parámetros (identificador, posición en `x` y `y` del puerto).
+* Constructor con tres parámetros (identificador, dólares y monedas).
 * Constructor de copia.
 * Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
-* `double getDistance(Port *port)`: Regresa la distancia euclidiana entre nuestro puerto y `port`.
-* `void incomingShip(SimpleShip *ship)`: Si la nave no se encuentra ya en el puerto, la agrega a la lista de naves que actualmente están en el puerto.
-* `void outgoingShip(SimpleShip *ship)`: Sólo se debe ejecutar si la nave se encuentra en el puerto. Remueva la nave de la lista de naves que actualmente están en el puerto y, si la nave no se encuentra en la lista de naves que han estado en el puerto, la agrega.
-* `bool contains(Container *container)`: Regresa `true`, si el contenedor se encuentra en el puerto.
-* `std::string toString() const`: Regresa un string con el siguiente formato: "Port #id : (x, y)", en seguido la lista de contendores lígeros, pesados, refrigerados y líquidos que hay en el puerto. A continuación, despliega las naves que se encuentra en el puerto (**VER LOS EJEMPLOS DE SALIDA**).
+* `bool sell(double amount, double price, int marketFee)`: Este método verifica si un comerciante puede vender PCoins. Se dice que pude vender, si la cantidad recibida es menor a la cantidad de PCoins bloquedadas o si el identificador es igual a 0. Si el comerciante puede vender, deberá pagar esa cantidad con PCoins bloqueadas y transferir los dólares que resultan de vender cantidad de PCoins al precio indicado, menos el porcentaje que retiene el mercado. Regresa si el comerciante pudo vender o no.
+* `bool buy(double amount, double price, int marketFee)`: Este método verifica si un comerciante puede comprar PCoins. Se dice que pude comprar, si los dólares bloquedos es menor a la cantidad de PCoins que quiere comprar en el precio indicado o si el identificador es 0. Si el comerciante pueden comrar, deberá pagar esa cantidad con los dólares bloqueados y depositar la cantidad de PCoins a su cartera. Regresa si el comerciante pudo comprar o no.
+* `bool Trader::operator==(const Trader *left)`: Regresa verdadero si nuestro identificador y el del apuntador `left` son iguales.
+* `bool Trader::operator==(const Trader &left)`: Regresa verdadero si nuestro identificador y el del objeto `left` son iguales.
+* `std::string toString() const`: Regresa un string con el siguiente formato: `Trader <id>: <walletString>`, donde `walletString` es la cadena que regresa el `toString` de wallet.
 
-#### <span style="color: rgb(26, 99, 169);">**Ship**</span>
-La clase `Ship`, derivada de `SimpleShip`, cuenta con las siguientes variables de estado propias:
-* `currentWeight`, `totalWeight` : Peso actual y máximo total de los contenedores que puede llevar la nave.
-* `currentNumberOfAllContainers`, `maxNumberOfAllContainers` : cantidad actual y máxima de contenedores que puede llevar la nave.
-* `currentNumberOfHeavyContainers`, `maxNumberOfHeavyContainers` : cantidad actual y máxima de contenedores pesados que puede llevar la nave.
-* `currentNumberOfRefrigeratedContainers`, `maxNumberOfRefrigeratedContainers` : cantidad actual y máxima de contenedores refrigerados que puede llevar la nave.
-* `currentNumberOfLiquidContainers`, `maxNumberOfLiquidContainers` : cantidad actual y máxima de contenedores con líquidos que puede llevar la nave.
-* `fuel` : Cantidad actual de combustible.
-* `fuelConsumptionPerKM`: Consumo de combustible por kilómetro.
-* `currentPort`: Puerto actual en que se encuentra la nave.
-* `containers` : Una lista con los contenedores que lleva la nave actualmente.
+#### <span style="color: rgb(26, 99, 169);">**Market**</span>
+La clase `Market` cuenta con las siguientes variables de estado:
+* `sellingOrders`: Una fila priorizada de órdenes de venta.
+* `buyingOrders`: Una fila priorizada de órdenes de compra.
+* `transactions`: Una lista de transacciones realizadas.
+* `fee`: El porcentaje que cobra el mercado al vendedor por transacción realizada.
+* `noOfSuccessfulTransactions`: Número de transacciones existosas.
 
 La clase cuenta con los siguientes métodos:
-* Constructor con ocho parámetro (identificador de la nave, puerto actual, peso total que puede llevar, máxima cantidad de contenedores (totales, pesados,refrigrerados y líquidos) que puede llevar la nave y el consumo por kilómetro. Debe invocar al constructor de la clase superior con los parámetros correctos. El resto de las variables de instancia se inicializan a cero.
-* Constructor de copia.
+* Constructor con un parámetro (porcentaje). Inicialmente consideramos que no existen transacciones exitosas.
 * Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
-* `bool sailTo(Port *port)`: El método calcula combustible que se consumiría por ir de un puerto a otro con base al consumo que genera cada uno de los contenedores que lleva la nave en ese momento, la distancia al puerto destino y el consumo por kilómetro de esta nave. Si la cantidad de combustible es menor al combustible actual, resta la cantidad calculada al combustible actual, elmina la nave del puerto actual, agrega la nave al puerto destino, cambia el puerto actual al puerto destino y regresa `true`para indicar que si se pudo realizar el viaje.
-* `void reFuel(double amount)`: Siempre la cantidad sea positiva, la aumenta al combustible actual.
-* `bool load(Container *container)`: Este método deberá revisar varias condiciones. La primera, si el puerto actual no tiene el contenedor o si la cantidad actual de contenedores es mayor o igual a la cantidad máxima de contenedores o si el peso actual m+as el peso del contenedor excede el peso total que puede llevar la nave, no es posible cargar ese contenedor. A continuación, deberá verificar, de acuerdo al tipo de contenedor, que no se exceda de la cantidad máxima permitida de contenedores de un tipo determinado. En cualquier caso anterior, deberá regresar `false`. Si se puede hacer la carga, deberá remover el contenedor del puerto actual, agregar a la lista de contenedor, incrementar el número de contenedores que lleva la nave tanto en lo general, como en lo que respecta a un tipo determinado, regresando `true`para indicar que se realizó la carga del contenedor.
-* `bool contains(Container *container)`: Indica si el contenedor se encuentra dentro de la lista de contenedores.
-* `bool remove(Container *container)`: Remueve un contenedor determinado de la lista de contenedores.
-* `bool unLoad(Container *container)`: Este método, primero, deberá revisar si lleva el contenedor indicado. Si es así, deberá remove el contenedor de la lista de contenedores agregarlo al puerto actual, reducir el número de contenedores que lleva la nave tanto en lo general, como en lo que respecta a un tipo determinado, regresando `true`para indicar que se realizó la descarga del contenedor. Si no, regresa `false`.
-* `std::string toString() const`: Regresa un string con el siguiente formato: "Ship #id : fuel", en seguido "\n\t\tLight Containers: " y la lista de contenedores ligeros, a continuación "\n\t\tHeavy Containers: " y la lista de contenedores pesados; y así para el resto de los contenedores refigerados y líquidos (**VER LOS EJEMPLOS DE SALIDA**).
+* `void addSellingOrder(SellingOrder *s)`: Agrega un nuevo elemento a la fila de órdenes de venta.
+* `void addBuyingOrder(BuyingOrder *b))`: Agrega un nuevo elemento a la fila de órdenes de compra.
+* `void topBuyingPrice() const`: Si la fila de órdenes de compra no está vacía, regresa el elemento que está al frente. En caso contrario, regresa 0.
+* `void topSellingPrice() const`: Si la fila de órdenes de venta no está vacía, regresa el elemento que está al frente. En caso contrario, regresa 0.
+* `makeOpenMarketOperation(double price, std::vector<Trader*> &traders)`: Primero, mientras la fila de órdenes de compra no este vacía y el precio de venta sea mayor o igual al precio indicado, adjudica una venta al mercado (Trader 0) por el precio y la cantidad indicada; por último, revisa las transacciones realizada. Posteriormente, mientras la fila de órdenes de venta no este vacía y el precio de venta sea menor o igual  al precio indicado, adjudica una compra al mercado (Trader 0) por el precio y la cantidad indicada; por último, revisa las transacciones realizada.
+* `checkTransactions(std::vector<Trader*> &traders)`: Primero, mientras existan ventas y compras pendientes y el precio de compra sea mayor o igual al precio de venta, se obtienen (y remueven) la compra y venta "top" y se determina la cantidad de PCoins en la transacción. Si la cantidad a vender es mayor a la cantidad a compra, sólo se considera la cantidad a comprar y se genera una nueva venta por la cantidad restante. De manera similar, si la cantidad a comprar a mayor a la cantidad a vender, sólo se considera la cantidad a vender y se genera una nueva compra por la cantidad restante. A continuación, se verifica si el comprador y vendedor pueden realizar la acción. Si es así, se determina que hubo una transacción exitosa. En seguido, si edl precio de comprar es myor al precio de venta, se regresa al venderdor la cantidad de dólares que representa la diferencia de precios por la cantidad comerciada. Por último, se agrega una transacción a la lista de transacciones.
+* `marketInfo() const`: Regresa un string con el siguiente formato: `Current market size: <totalDollar> <totalPCoins>`, donde `<totalDollar>` es la cantidad de dólares que se obtendrán de todas las órdenes de compra y `<totalPCoins>` es la cantidad de monedas que se negociarán con todas las órdenes de venta.
+* `currentPriceInfo() const`: Regresa un string con el siguiente formato: `Current prices: <buyingOrderPrice> <sellingOrderPrice> <averagePrice>`, donde `<buyingOrderPrice>` es el precio más alto ("top") de compra, `<sellingOrderPrice>` es el precio más alto de venta y `<averagePrice>` se determina de la siguiente manera. Si no hay acciones a la venta y compra, `<averagePrice>` es 0. Si no hay órdenes de venta pero si hay a la compra, `<averagePrice>` será el precio de compra más alto. Si no hay órdenes de compra pero si hay a la venta, `<averagePrice>` será el precio de venta más alto. En caso de existir tanto órdenes de compra como de venta, será un promedio de los precios más altos.
+* `transactionInfo() const`: Regresa un string con el siguiente formato: `Number of successful transactions:  <noOfSuccessfulTransactions>`, donde `<noOfSuccessfulTransactions>` es el valor actual de noOfSuccessfulTransactions.
 
 #### <span style="color: rgb(26, 99, 169);">**main.cpp**</span>
 En el archivo *main.cpp* se realizarán las operaciones generales de entrada y salida. Leerás de un archivo de entrada las operaciones sobre la simulación, las deberás realizar e imprimirás los resultados en el archivo de salida.
 
 Las operaciones se detallan más adelante. El nombre de los archivos de entrada y salida se darán como argumentos del programa a través de la línea de comandos. Si el archivo de entrada no existe, el programa termina.
 
-Deberás manejar tres vectores, uno para apuntadores a objetos `Container`, otro para apuntadores de objetos `Port` y otro para apuntadores a objetos `Ship`. **Adicionalmente, deberás considerar variables que indiquen la cantidad de contenedores, puertos y naves creadas, ya el valor de estas variables se utilizarán como id de los objetos creados. Por lo mismo, deben ser inicializas a 0.**
+Deberás manejar un apuntador a un objeto `Market` y un vector de apuntadores a objetos `Trader`. **Adicionalmente, deberás considerar una variablea que indique la cantidad de transacciones inválidas. Por lo mismo, deben ser inicializa a 0.**
 
 #### <span style="color: rgb(26, 99, 169);">**Entrada**</span>
 Vas a leer el archivo de entrada elemento por elemento.
 
-La primera línea tiene cuatro números enteros, `C`, `S`, `P` y `N`. El número `C` represnta el número de contenedores que estarán en la simulación. El segundo número, `S`, indica el número de naves en la simulación. El tercer número, `P`, indica el número de puertos en la simulación. Y, por último, `N`, representa el número de eventos a simular.
+La primera línea tiene cuatro números enteros, `A`, `B`, `C` y `D`. El número `A` representa la semilla de los números aleatorios que se utilizarán en la simulación. El segundo número, `B`, indica el porcentaje que cobrará el mercado. El tercer número, `C`, indica el número de de usuarios. Y, por último, `D`, representa el número de eventos a simular.
 
-Las siguientes línea `N` serán algunas de las siguientes operaciones:
-1. Creando un contenedor.
-2. Creando una nave.
-3. Creando un puerto.
-4. Cargar un contenedor a una nave.
-5. Descargar un contenedor de una nave.
-6. Un nave viaja del puerto actual a otro.
-7. Una nave carga combustible.
+Las siguientes 'C' línea serán los datos para crear un comerciante: cantidad de dólares y PCoins. Toma en cuenta que el identificador del comerciante será el orden de creación. Por ejemplo, el primer comerciantes creado debe tener Id 0 y debe colocarse en la posición 0 del vector. Recuerda que el comerciante 0 es muy especial, ya que representa al mercado de valores.
 
-##### <span style="color: rgb(26, 99, 169);">**1. Creando un contenedor**</span>
-Esta línea contiene un 1, seguido id del puerto en el que está el contenedor, el peso y tipo de contenedor.
-```
-1 <idPort> <weight> <type>
-```
-Los tipos válidos son `B`, `R` y `L`. `R` indica que es un contenedor refrigerado, mientras que `L` indica que es un contenedor líquido. Caso espacial es `B`, el tipo de contenedor que se creará dependerá del peso del contenedor. Si es peso es menor o igual a 3000, se crea un contenedor ligero; si es mayo, se crea un contenedor pesado. Toma en cuenta que el identificador del contenedor será el orden de creación. Por ejemplo, el primer contenedor creado debe tener Id 0 y debe colocarse en la posición 0 del vector.
+A continuación, hay `D` líneas. Éstas indicarán alguna de las siguientes operaciones:
+1. Dar orden de compra de precio específico.
+2. Dar orden de compra a precio de mercado.
+3. Dar orden de venta de precio específico.
+4. Dar orden de venta de precio de mercado.
+5. Depositar una cierta cantidad de dólares en una cartera.
+6. Retirar cierta cantidad de dólares de una cartera.
+7. Imprimir el estado de una cartera.
+8. Dar recompensas a todos los comerciantes.
+9. Hacer una operación de mercado abierto.
+10. Imprime el tamaño actual del mercado.
+11. Imprimir número de transacciones exitosas.
+12. Imprimir el número de consultas no válidas.
+13. Imprimir los precios actuales.
+14. Imprimir el estado de las carteras de todos los comerciantes.
 
-##### <span style="color: rgb(26, 99, 169);">**2. Creando una nave**</span>
-Esta línea contiene un 2, seguido del identificador del puerto en que se encuentra la nave, el peso total que puede llevar la nave, en número máximo de contenedores, de contenedores pesados, refrigerados y líquidos que la nave puede llevar, así como el consumo de combustible por kilómetro.
+##### <span style="color: rgb(26, 99, 169);">**1. Dar orden de compra de precio específico**</span>
+Esta línea contiene un 10, seguido del identificador del comerciante, el precio y la cantidad.
 ```
-2 <idPort> <totalWeight> <maxNumberOfAllContainers> <maxNumberOfHeavyContainers> <maxNumberOfRefrigeratedContainers> <maxNumberOfLiquidContainers> <fuelConsumptionPerKM>
+10 <traderId> <price> <amount>
 ```
-Toma en cuenta que el identificador de la nave será el orden de creación. Por ejemplo, la primera nave creada debe tener Id 0 y debe colocarse en la posición 0 del vector.
+Deberás agregar una nueva orden de compra con los valores recibidos.
 
-##### <span style="color: rgb(26, 99, 169);">**3. Creando un puerto**</span>
+##### <span style="color: rgb(26, 99, 169);">**2. Dar orden de compra a precio de mercado**</span>
+Esta línea contiene un 11, seguido del identificador del comerciante y la cantidad.
+```
+11 <traderId> <amount>
+```
+Es similar a la orden anterior, pero deberás tomar como referencia el precio más alto. Si no existen órdenes de compra, deberás indicar esta transacción como inválida.
+
+##### <span style="color: rgb(26, 99, 169);">**3. Dar orden de venta de precio específico**</span>
+Esta línea contiene un 20, seguido del identificador del comerciante, el precio y la cantidad.
+```
+20 <traderId> <price> <amount>
+```
+Deberás agregar una nueva orden de venta con los valores recibidos.
+
+##### <span style="color: rgb(26, 99, 169);">**4. Dar orden de venta de precio de mercado**</span>
+Esta línea contiene un 21, seguido del identificador del comerciante y la cantidad.
+```
+21 <traderId> <amount>
+```
+Es similar a la orden anterior, pero deberás tomar como referencia el precio más alto. Si no existen órdenes de venta, deberás indicar esta transacción como inválida.
+
+##### <span style="color: rgb(26, 99, 169);">**5. Depositar una cierta cantidad de dólares en una cartera**</span>
 Esta línea contiene un 3, seguido de la posición `x` y `y` del puerto.
 
 ```
-3 <x> <y>
+3 <traderId> <amount>
 ```
-Toma en cuenta que el identificador de la nave será el orden de creación. Por ejemplo, la primera nave creada debe tener Id 0 y debe colocarse en la posición 0 del vector.
 
-##### <span style="color: rgb(26, 99, 169);">**4. Cargar un contenedor a una nave**</span>
+##### <span style="color: rgb(26, 99, 169);">**6. Retirar cierta cantidad de dólares de una cartera**</span>
 Esta línea contiene un 4, seguido del id de la nave y el id del contenedor.
 
 ```
-4 <idShip> <idContainer>
+4 <traderId> <amount>
 ```
 
-##### <span style="color: rgb(26, 99, 169);">**5. Descargar un contenedor de una nave**</span>
+##### <span style="color: rgb(26, 99, 169);">**7. Imprimir el estado de una cartera**</span>
 Esta línea contiene un 5, seguido del id de la nave y el id del contenedor.
 
 ```
-5 <idShip> <idContainer>
+5 <tradeId>
 ```
 
-##### <span style="color: rgb(26, 99, 169);">**6. Un nave viaja del puerto actual a otro**</span>
-Esta línea contiene un 6, seguido del id de la nave y el id del puerto.
+##### <span style="color: rgb(26, 99, 169);">**8. Dar recompensas a todos los comerciantes**</span>
+Esta línea contiene sólo un 777.
 
 ```
-6 <idShip> <idPort>
+777
+```
+Cuando se ejecuta esta consulta, el sistema crea y distribuye cantidad aleatorias de PCoins a todos los comerciantes. Utiliza la siguiente fórmula para generar los valores aleatorios: `((double) rand() / (double) RAND_MAX) * 100.0`.
+
+##### <span style="color: rgb(26, 99, 169);">**9. Hacer una operación de mercado abierto**</span>
+Esta línea contiene sólo un 66.
+
+```
+666
+```
+Se ejecuta una operación de mercado abierto.
+
+##### <span style="color: rgb(26, 99, 169);">**10. Imprime el tamaño actual del mercado**</span>
+Esta línea contiene sólo un 500.
+
+```
+500
 ```
 
-##### <span style="color: rgb(26, 99, 169);">**7. Una nave carga combustible**</span>
-Esta línea contiene un 7, seguido del id de la nave y la cantidad de combustible.
+##### <span style="color: rgb(26, 99, 169);">**11. Imprimir número de transacciones exitosas**</span>
+Esta línea contiene sólo un 501.
 
 ```
-7 <idShip> <amount>
+501
 ```
 
-#### <span style="color: rgb(26, 99, 169);">**Salida**</span>
-Debes calcular lo siguiente e imprimirlo en el archivo de salida.
+##### <span style="color: rgb(26, 99, 169);">**12. Imprimir el número de consultas no válidas**</span>
+Esta línea contiene sólo un 502.
 
-Debés imprimir la información relacionada con cada puerto (contenedores y barcos).
+```
+502
+```
 
-Por último, deberás eliminar todos los apuntadores que existan y cerrar los archivos de entrada y salida.
+##### <span style="color: rgb(26, 99, 169);">**13. Imprimir los precios actuales**</span>
+Esta línea contiene sólo un 505.
+
+```
+505
+```
+
+##### <span style="color: rgb(26, 99, 169);">**14. Imprimir el estado de las carteras de todos los comerciantes**</span>
+Esta línea contiene sólo un 555.
+
+```
+555
+```
