@@ -48,3 +48,5 @@ public:
   std::string currentPriceInfo() const;
   std::string transactionInfo() const;
 };
+
+#endif

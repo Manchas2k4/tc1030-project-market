@@ -1,5 +1,5 @@
 // =========================================================
-// File: market.h
+// File: trader.h
 // Author:
 // Date:
 // Description:
@@ -33,3 +33,5 @@ public:
 
   std::string toString() const;
 };
+
+#endif
