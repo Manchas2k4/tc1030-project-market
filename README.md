@@ -34,6 +34,7 @@ Existen 6 clases interactuando entre sí en este proyecto:
 * `Order`.
 * `SellingOrder` (derivado de `Order`)
 * `BuyingOrder` (derivado de `Order`)
+* `Transaction`
 * `Wallet`
 * `Trader`
 * `Market`.
@@ -72,6 +73,16 @@ La clase `BuyingOrder`, derivada de `Order`, no tiene ninguna variable de instan
 * Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
 * `bool operator<(const Container *right)`: Si el tipo de nuestra orden es diferente a la de `right`, regresa si nuestro tipo es **menor** o no. Si el precio de nuestra orden es diferente al de `right`, regresa si nuestro precio es **mayor** o no. Si la cantidad de nuestra orden es diferente a la de `right`, regresa si nuestra cantidad es **mayor** o no. Si no fue ninguno de los casos previos, regres si nuestro identificador es **menor** o no.
 * `bool operator<(const Container &right)`: Emplea la misma lógica que el método anterior.
+
+#### <span style="color: rgb(26, 99, 169);">**Transaction**</span>
+La clase `Transaction` cuenta con las siguientes variables de estado:
+* `sellingOrder`: Apuntador a un objeto de la clase `SellingOrder`.
+* `buyingOrder`: Apuntador a un objeto de la clase `BuyingOrder`.
+
+La clase cuenta con los siguientes métodos:
+* Constructor con dos parámetros (apuntador a `SellingOrder` y apuntador a `BuyingOrder`).
+* Constructor de copia.
+* Métodos de acceso para todas las variables de instancia. (Si consideras necesario agregar métodos de modificación, adelante).
 
 #### <span style="color: rgb(26, 99, 169);">**Wallet**</span>
 La clase `Wallet` cuenta con las siguientes variables de estado:
