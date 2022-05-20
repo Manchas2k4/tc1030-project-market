@@ -1,96 +1,91 @@
 // =========================================================
-// File: testing_port1.cpp
+// File: testing_trader.cpp
 // Author: Dr. Pedro O. Perez-Murueta
-// Date: 4/Jan/2022
+// Date: 8/Apr/2022
 // Description: This file contains the series of tests that
-//							the Port class must pass.
-// IMPORTANT: This file must be used BEFORE the
-// testing of Ship class.
-// To compile: g++ -std=c++11 testing_port1.cpp -o app
+//							the Trader class must pass.
+// To compile: g++ -std=c++11 testing_trader.cpp -o app
 // To execute: ./app
 // =========================================================
 #define CATCH_CONFIG_MAIN
 #include <string>
 #include "catch.h"
-#include "../light.h"
-#include "../port.h"
+#include "../trader.h"
 
-TEST_CASE("testing basic constructor with position", "[Port(double, double)]") {
-	Port p(1, 1, 1);
+TEST_CASE("testing basic constructor", "[Trader(id, dollars, coins)]") {
+	Trader t1(1, 100, 10);
+	Wallet *w1;
 
-	REQUIRE(p.getId() == 1);
-	REQUIRE(p.getX() == 1.0);
-	REQUIRE(p.getY() == 1.0);
-	REQUIRE(p.getContainers().empty() == true);
-	REQUIRE(p.getHistory().empty() == true);
-	REQUIRE(p.getCurrent().empty() == true);
+	REQUIRE(t1.getId() == 1);
+	w1 = t1.getWallet();
+	REQUIRE(w1 != NULL);
+	REQUIRE(w1->getDollars() == 100);
+	REQUIRE(w1->getCoins() == 10);
+  REQUIRE(w1->getBlockedDollars() == 0);
+	REQUIRE(w1->getBlockedCoins() == 0);
 }
 
-TEST_CASE("testing copy constructor", "[Port(const Port&)]") {
-	Port p1(1, 1, 1);
-	Port p2(p1);
+TEST_CASE("testing copy constructor", "[Trader(const Trader&)]") {
+	Trader t1(1, 100, 10);
+	Trader t2(t1);
+	Wallet *w2;
 
-	REQUIRE(p2.getId() == 1);
-	REQUIRE(p2.getX() == 1.0);
-	REQUIRE(p2.getY() == 1.0);
-	REQUIRE(p2.getContainers().empty() == true);
-	REQUIRE(p2.getHistory().empty() == true);
-	REQUIRE(p2.getCurrent().empty() == true);
+	REQUIRE(t2.getId() == 1);
+	w2 = t2.getWallet();
+	REQUIRE(w2 != NULL);
+	REQUIRE(w2->getDollars() == 100);
+	REQUIRE(w2->getCoins() == 10);
+  REQUIRE(w2->getBlockedDollars() == 0);
+	REQUIRE(w2->getBlockedCoins() == 0);
 }
 
-TEST_CASE("testing getDistance", "[getDistance(Port*)]") {
-	Port p1(1, 1, 1);
-	Port *p2 = new Port(2, 4, 5);
+TEST_CASE("testing sell", "[sell(amount, price, marketFee)]") {
+	Trader t1(1, 100, 100);
+	Wallet *w1;
 
-	REQUIRE(p1.getDistance(p2) == 5.0);
+	w1 = t1.getWallet();
+	w1->blockCoins(50);
+	REQUIRE(t1.sell(100, 100, 10) == false);
+	REQUIRE(w1->getBlockedCoins() == 50);
+	REQUIRE(w1->getDollars() == 100);
 
-	delete p2;
+	REQUIRE(t1.sell(50, 100, 10) == true);
+	REQUIRE(w1->getBlockedCoins() == 0);
+	REQUIRE(w1->getDollars() == 4600);
 }
 
-TEST_CASE("testing add", "[add(Container*)]") {
-	Port p(1, 1, 1);
-	LightContainer *c1 = new LightContainer(1, 300);
+TEST_CASE("testing buy", "[buy(amount, price, marketFee)]") {
+	Trader t1(1, 1000, 100);
+	Wallet *w1;
+
+	w1 = t1.getWallet();
+	w1->blockDollars(500);
+	REQUIRE(t1.buy(100, 100, 10) == false);
+	REQUIRE(w1->getBlockedDollars() == 500);
+	REQUIRE(w1->getCoins() == 100);
+
+	REQUIRE(t1.buy(50, 10, 10) == true);
+	REQUIRE(w1->getBlockedDollars() == 0);
+	REQUIRE(w1->getCoins() == 150);
+}
+
+TEST_CASE("testing operator==", "[operator==(const Trader*)]") {
+	Trader t1(1, 1000, 100);
+	Trader t2(1, 1000, 100);
+	Trader t3(2, 1000, 100);
+	Trader *t4 = new Trader(1, 1000, 100);
+	Trader *t5 = new Trader(2, 1000, 100);
 	bool result;
 
-	p.add(c1);
-	REQUIRE(p.getContainers().size() == 1);
-	result = (p.getContainers().back() == c1);
+	result = (t1 == t2);
 	REQUIRE(result == true);
-}
+	result = (t1 == t3);
+	REQUIRE(result == false);
+	result = (t1 == t4);
+	REQUIRE(result == true);
+	result = (t1 == t5);
+	REQUIRE(result == false);
 
-TEST_CASE("testing contains", "[contains(Container*)]") {
-	Port p(1, 1, 1);
-	LightContainer *c1 = new LightContainer(1, 300);
-	LightContainer *c2 = new LightContainer(2, 300);
-	LightContainer *c3 = new LightContainer(3, 300);
-	bool result;
-
-	p.add(c1);
-	p.add(c2);
-	p.add(c3);
-	REQUIRE(p.getContainers().size() == 3);
-	REQUIRE(p.contains(c2) == true);
-
-	delete c1;
-	delete c2;
-	delete c3;
-}
-
-TEST_CASE("testing remove", "[remove(Container*)]") {
-	Port p(1, 1, 1);
-	LightContainer *c1 = new LightContainer(1, 300);
-	LightContainer *c2 = new LightContainer(2, 300);
-	LightContainer *c3 = new LightContainer(3, 300);
-	bool result;
-
-	p.add(c1);
-	p.add(c2);
-	p.add(c3);
-	p.remove(c2);
-	REQUIRE(p.getContainers().size() == 2);
-	REQUIRE(p.contains(c2) == false);
-
-	delete c1;
-	delete c2;
-	delete c3;
+	delete t4;
+	delete t5;
 }

@@ -1,9 +1,9 @@
 // =========================================================
-// File: testing_liquid.cpp
+// File: testing_wallet.cpp
 // Author: Dr. Pedro O. Perez-Murueta
 // Date: 8/Apr/2022
 // Description: This file contains the series of tests that
-//							the LiquidContainer class must pass.
+//							the Wallet class must pass.
 // To compile: g++ -std=c++11 testing_wallet.cpp -o app
 // To execute: ./app
 // =========================================================

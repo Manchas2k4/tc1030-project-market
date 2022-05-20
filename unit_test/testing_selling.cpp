@@ -1,86 +1,92 @@
 // =========================================================
-// File: testing_light.cpp
+// File: testing_selling.cpp
 // Author: Dr. Pedro O. Perez-Murueta
-// Date: 4/Jan/2022
+// Date: 8/Apr/2022
 // Description: This file contains the series of tests that
-//							the LightContainer class must pass.
+//							the SellingOrder class must pass.
 // To compile: g++ -std=c++11 testing_light.cpp -o app
 // To execute: ./app
 // =========================================================
 #define CATCH_CONFIG_MAIN
 #include <string>
 #include "catch.h"
-#include "../light.h"
+#include "../selling.h"
 
-TEST_CASE("testing basic constructor with positive weight", "[LightContainer(id, weight)]") {
-	LightContainer c1(1, 300);
+TEST_CASE("testing basic constructor", "[SellingOrder(id, amount, price)]") {
+	SellingOrder s1(1, 100, 10);
 
-	REQUIRE(c1.getId() == 1);
-	REQUIRE(c1.getWeight() == 300);
-  REQUIRE(c1.getType() == LIGHT);
+	REQUIRE(s1.getTraderId() == 1);
+	REQUIRE(s1.getAmount() == 100);
+	REQUIRE(s1.getPrice() == 10);
+	REQUIRE(s1.getType() == SELLING);
+	REQUIRE(s1.getDollars() == 1000);
 }
 
-TEST_CASE("testing basic constructor with negative weight", "[LightContainer(id, weight)]") {
-	LightContainer c1(1, -300);
+TEST_CASE("testing copy constructor", "[SellingOrder(const SellingOrder&)]") {
+	SellingOrder s1(1, 100, 10);
+	SellingOrder s2(s1);
 
-	REQUIRE(c1.getId() == 1);
-	REQUIRE(c1.getWeight() == 0);
-  REQUIRE(c1.getType() == LIGHT);
-}
-
-TEST_CASE("testing copy constructor", "[LightContainer(const LightContainer&)]") {
-	LightContainer c1(1, 300);
-	LightContainer c2(c1);
-
-	REQUIRE(c2.getId() == 1);
-	REQUIRE(c2.getWeight() == 300);
-  REQUIRE(c2.getType() == LIGHT);
-}
-
-TEST_CASE("testing getConsumption", "[getConsumption()]") {
-	LightContainer c1(1, 1000);
-
-	REQUIRE(c1.getConsumption() == 2500.0);
+	REQUIRE(s2.getTraderId() == 1);
+	REQUIRE(s2.getAmount() == 100);
+	REQUIRE(s2.getPrice() == 10);
+	REQUIRE(s2.getType() == SELLING);
+	REQUIRE(s2.getDollars() == 1000);
 }
 
 TEST_CASE("testing operator==", "[operator==]") {
-	LightContainer c1(1, 300);
-	LightContainer c2(c1);
-	LightContainer c3(1, 301);
-	LightContainer *c4 = new LightContainer(1, 300);
-	LightContainer *c5 = new LightContainer(1, 301);
+	SellingOrder s1(1, 100, 10);
+	SellingOrder s2(s1);
+	SellingOrder *s3 = new SellingOrder(1, 100, 10);
+	SellingOrder s4(1, 101, 10);
+	SellingOrder *s5 = new SellingOrder(1, 101, 10);
 	bool result;
 
-	result = (c1 == c2);
+	result = (s1 == s2);
 	REQUIRE(result == true);
-	result = (c1 == c3);
+	result = (s1 == s3);
+	REQUIRE(result == true);
+	result = (s1 == s4);
 	REQUIRE(result == false);
-	result = (c1 == c4);
-	REQUIRE(result == true);
-	result = (c1 == c5);
+	result = (s1 == s5);
 	REQUIRE(result == false);
 
-	delete c4;
-	delete c5;
+	delete s3;
+	delete s5;
 }
 
 TEST_CASE("testing operator<", "[operator<]") {
-	LightContainer c1(2, 300);
-	LightContainer c2(c1);
-	LightContainer c3(3, 300);
-	LightContainer *c4 = new LightContainer(1, 400);
+	SellingOrder s1(1, 100, 10);
+	SellingOrder s2(2, 100, 20);
+	SellingOrder s3(3, 50, 10);
+	SellingOrder s4(3, 100, 10);
+	SellingOrder *s5 = new SellingOrder(2, 100, 20);
+	SellingOrder *s6 = new SellingOrder(3, 50, 10);
+	SellingOrder *s7 = new SellingOrder(3, 100, 10);
 	bool result;
 
-	result = (c1 < c2);
-	REQUIRE(result == false);
-	result = (c2 < c1);
-	REQUIRE(result == false);
-	result = (c1 < c3);
+	result = (s1 < s2);
 	REQUIRE(result == true);
-	result = (c3 < c1);
+	result = (s1 < s3);
+	REQUIRE(result == true);
+	result = (s1 < s4);
+	REQUIRE(result == true);
+
+
+	result = (s2 < s1);
 	REQUIRE(result == false);
-	result = (c1 < c4);
+	result = (s3 < s1);
+	REQUIRE(result == false);
+	result = (s4 < s1);
 	REQUIRE(result == false);
 
-	delete c4;
+	result = (s1 < s5);
+	REQUIRE(result == true);
+	result = (s1 < s6);
+	REQUIRE(result == true);
+	result = (s1 < s7);
+	REQUIRE(result == true);
+
+	delete s5;
+	delete s6;
+	delete s7;
 }
